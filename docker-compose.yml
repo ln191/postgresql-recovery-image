@@ -1,0 +1,7 @@
+version: '3.7'
+services:
+  backup:
+    image: backup_restore_image_backup:latest
+    env_file:
+      - ./args.env
+    command: tail -F anything
