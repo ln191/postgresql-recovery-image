@@ -1,7 +1,35 @@
 version: '3.7'
 services:
   backup:
-    image: backup_restore_image_backup:latest
+    container_name: backup
+    image: backup:0.2
     env_file:
       - ./args.env
-    command: tail -F anything
+    networks:
+      - local
+    volumes:
+      - ./keys:/home/backup/.ssh
+    depends_on:
+      - db 
+      - storage
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: password
+    expose:
+      - 5432
+    networks:
+      - local
+
+  storage:
+    image: praqma/alpine-sshd
+    environment:
+      - AUTHORIZED_KEYS=ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDW1MxzrnvkzFFxkEOLflhoZlV0MUa9WoRNXVkRX90edddq5Jke1KUCnRHRtLlESLGpSLRjMc2U7gEiqoByNhVzZqvwglUWIZvy6KAVfxJtvuwIvCrgHotfjF0XxkaeD7kA7WaZS98vdzdoPfhfI6OeqBfzjS6SRXQgjgzciZew7gfTm/dPH5KFihA+RYYVOIAcDp/UrnGRSVZj+Wzee0xNcRHyWLQ/Dowwon7+Vje7GgO4d/AV90rf+JNQaKIeDAsUFgLHfOCCxbuMGSRXtXNp0JcUnFswTuP7IEdUwwmQHwAa+63g0Jho6tfB0teETgXkiog5S2cfaQHLrnFtb9LCRxAQwbn26YtQQGIu86LBNsRyzKR76h6pwyP/hTLG8svCLrO0S+UOOawhH8nEDC7hKw+7ogcIZX8L3NVuJfL2/JQagVIpA2L5nfPLAB/nIA1h1T7MsCRBr/pigbo441mQTrq+q5tFrjbKAGQDudgjrQUriPNbny59lXmRc6xYcN6bd0HhO/SEbMr0hDOHs+oItm1NQNwYMe0huOf1jGeJWnVYculH/s36uCirWW+q3XWLCYgfiV/j0hSVaNSN06QelBssY4lGiyuOwvq3LEM5n8hs72mhDGWlTt23BlXw9Ti+jD2U/3feeQB8eGy6mv3V4IaoBxa9jOeaRJMGlqRWcw== your_email@example.com
+    networks:
+      - local
+
+
+networks:
+  local:
+    driver: bridge
+
