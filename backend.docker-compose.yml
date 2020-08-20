@@ -2,12 +2,13 @@ version: '3.7'
 services:
   backup:
     container_name: backup
-    image: backup:0.1
+    image: backup:0.2
     env_file:
       - ./args.env
-    command: tail -F anything
     networks:
       - local
+    volumes:
+      - ./keys:/home/backup/.ssh
     depends_on:
       - db 
       - storage
@@ -27,6 +28,8 @@ services:
     networks:
       - local
 
+
 networks:
   local:
     driver: bridge
+

@@ -7,8 +7,11 @@ REMOTEIP=$6
 STORAGEPATH=$7
 RESTOREOPTIONS=$8
 
+cd
+touch ~/.ssh/known_hosts
+chmod -R 600 .ssh/id_rsa && chmod -R 600 .ssh/known_hosts
 ssh-keygen -f ~/.ssh/id_rsa -y > ~/.ssh/id_rsa.pub
-chmod -R 600 /home/backup/.ssh/id_rsa.pub
+chmod -R 600 .ssh/id_rsa.pub
 ssh-keyscan -H $REMOTEIP >> ~/.ssh/known_hosts
 
 # backup postgres db

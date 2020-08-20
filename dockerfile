@@ -1,6 +1,6 @@
 FROM alpine
 
-LABEL version="0.1" type="alpine-backup-retore"
+LABEL version="0.2" type="alpine-backup-retore"
 
 RUN apk update
 RUN apk upgrade
@@ -15,8 +15,6 @@ RUN chmod +x /usr/local/bin/backup.sh
 RUN addgroup -S backup && adduser -S backup -G backup
 
 USER backup
-RUN mkdir -p /home/backup/.ssh 
-COPY --chown=backup:backup ./keys/* /home/backup/.ssh/
-RUN chmod -R 600 /home/backup/.ssh/id_rsa && chmod -R 600 /home/backup/.ssh/known_hosts
+RUN mkdir -p ~/.ssh
 
 CMD backup.sh $STATE $DBNAME $BACKUPNAME $PASSWORD $REMOTEUSER $REMOTEIP $STORAGEPATH $RESTOREOPTIONS
