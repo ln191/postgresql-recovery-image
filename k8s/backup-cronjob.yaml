@@ -1,0 +1,53 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: backup
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          volumes:
+            - name: secret-volume
+              secret:
+                secretName: backupkey-secret
+          containers:
+            - name: backup
+              image: backup:0.3
+              volumeMounts:
+                - name: secret-volume
+                  mountPath: /home/backup/keys
+              env:
+                - name: STATE
+                  value: backup
+                - name: PGHOST
+                  value: postgres-service
+                - name: PGDATABASE
+                  value: postgres
+                - name: PGUSER
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres-secret
+                      key: username
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres-secret
+                      key: password
+                - name: PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres-secret
+                      key: password
+                - name: DBNAME
+                  value: postgres
+                - name: BACKUPNAME
+                  value: test-backup
+                - name: REMOTEUSER
+                  value: root
+                - name: REMOTEIP
+                  value: storage-service
+                - name: STORAGEPATH
+                  value: /tmp
+          restartPolicy: OnFailure

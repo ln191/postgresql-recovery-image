@@ -15,6 +15,6 @@ RUN chmod +x /usr/local/bin/backup.sh
 RUN addgroup -S backup && adduser -S backup -G backup
 
 USER backup
-RUN mkdir -p ~/.ssh
+RUN mkdir -p ~/.ssh && mkdir ~/keys
 
 CMD backup.sh $STATE $DBNAME $BACKUPNAME $PASSWORD $REMOTEUSER $REMOTEIP $STORAGEPATH $RESTOREOPTIONS

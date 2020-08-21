@@ -9,9 +9,10 @@ RESTOREOPTIONS=$8
 
 cd
 touch ~/.ssh/known_hosts
-chmod -R 600 .ssh/id_rsa && chmod -R 600 .ssh/known_hosts
-ssh-keygen -f ~/.ssh/id_rsa -y > ~/.ssh/id_rsa.pub
-chmod -R 600 .ssh/id_rsa.pub
+chmod -R 600 .ssh/known_hosts
+ssh-keygen -f ~/keys/id_rsa -y > ~/.ssh/id_rsa.pub
+cp ~/keys/id_rsa ~/.ssh
+chmod -R 600 ~/.ssh/id_rsa
 ssh-keyscan -H $REMOTEIP >> ~/.ssh/known_hosts
 
 # backup postgres db
@@ -22,7 +23,6 @@ if [ $STATE = "backup" ]; then
     cd
     # dump sql db
     pg_dump -Fc $DBNAME > $DUMP_FILE_NAME
-    #| gzip > $DUMP_FILE_NAME.gz
 
     if [ $? -ne 0 ]; then
         echo "Back up not created, check db connection settings"
@@ -64,8 +64,6 @@ if [ $STATE = "restore" ]; then
     gpg --batch --passphrase $PASSWORD -o $BACKUPNAME -d $BACKUPNAME.asc
 
     echo "Succesfully decrypting Backup file"
-
-    #gunzip -c $BACKUPNAME.gz > $BACKUPNAME
     
     #psql --set ON_ERROR_STOP=on $DBNAME < $BACKUPNAME
     pg_restore $RESTOREOPTIONS -d $DBNAME $BACKUPNAME
