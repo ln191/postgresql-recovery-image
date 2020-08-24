@@ -1,3 +1,4 @@
+#!/bin/sh
 STATE=$1
 DBNAME=$2
 BACKUPNAME=$3
@@ -27,8 +28,8 @@ if [ $STATE = "backup" ]; then
     if [ $? -ne 0 ]; then
         echo "Back up not created, check db connection settings"
         exit 1
-    fi 
-
+    fi
+    
     echo 'Successfully Backed Up'
 
     # sync encryption
