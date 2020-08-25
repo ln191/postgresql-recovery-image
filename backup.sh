@@ -9,9 +9,10 @@ chmod -R 600 ~/.ssh/id_rsa
 ssh-keyscan -H $REMOTEIP >> ~/.ssh/known_hosts
 
 if [ "backup" = $STATE ]; then
+    echo "Running Backup cmd..."
     # backup postgres db
 
-    DUMP_FILE_NAME="${BACKUPNAME}-$(date +$DATEFORMAT).dump"
+    DUMP_FILE_NAME="${DBAPP}-$(date +$DATEFORMAT).dump"
     echo "time format: $(date +$DATEFORMAT)"
     echo "Creating dump: $DUMP_FILE_NAME"
 
@@ -32,8 +33,8 @@ if [ "backup" = $STATE ]; then
 
     # move backup file
     ssh $REMOTEUSER@$REMOTEIP mkdir $STORAGEPATH/$NAMESPACE
-    ssh $REMOTEUSER@$REMOTEIP mkdir $STORAGEPATH/$NAMESPACE/$BACKUPNAME
-    scp $DUMP_FILE_NAME.asc $REMOTEUSER@$REMOTEIP:$STORAGEPATH/$NAMESPACE/$BACKUPNAME
+    ssh $REMOTEUSER@$REMOTEIP mkdir $STORAGEPATH/$NAMESPACE/$DBAPP
+    scp $DUMP_FILE_NAME.asc $REMOTEUSER@$REMOTEIP:$STORAGEPATH/$NAMESPACE/$DBAPP
 
     if [ $? -ne 0 ]; then
         echo "Back up could not be move to storage, check scp connection to ${REMOTEUSER}@${$REMOTEIP}"
@@ -44,21 +45,23 @@ if [ "backup" = $STATE ]; then
     exit 0
 fi
 
-if ["restore" = $STATE]; then
+if [ "restore" = $STATE ]; then
 
-    echo "Pulling backup ${BACKUPNAME} from server"
-    if [-z "$BACKUPNAME"]; then
+    echo "Running Restore cmd..."
+    if [ -z ${BACKUPFILE+x} ]; then
         echo "Pulling backup lastes backup from server"
-        #  LATEST= ssh $REMOTEUSER@$REMOTEIP ls -t -l $STORAGEPATH/ | head -1
-
-        echo "$LATEST"
+        BACKUP=$( ssh $REMOTEUSER@$REMOTEIP ls -c $STORAGEPATH/$NAMESPACE/$DBAPP | head -1 )
+        scp $REMOTEUSER@$REMOTEIP:$STORAGEPATH/$NAMESPACE/$DBAPP/$BACKUP ./
+       
         if [ $? -ne 0 ]; then
             echo "Back up could not be pulled from storage, check scp connection to ${REMOTEUSER}@${$REMOTEIP}"
             exit 1
         fi
+        echo "Latest backup: $BACKUP"
     else
-        echo "Pulling backup ${BACKUPNAME} from server"
-        scp $REMOTEUSER@$REMOTEIP:$STORAGEPATH/$BACKUPNAME.asc ./
+        echo "Pulling backup ${BACKUPFILE} from server"
+        BACKUP=$BACKUPFILE
+        scp $REMOTEUSER@$REMOTEIP:$STORAGEPATH/$NAMESPACE/$DBAPP/$BACKUPFILE ./
         if [ $? -ne 0 ]; then
             echo "Back up could not be pulled from storage, check scp connection to ${REMOTEUSER}@${$REMOTEIP}"
             exit 1
@@ -66,17 +69,16 @@ if ["restore" = $STATE]; then
     fi
     echo "Succesfully retrived Backup file"
 
-    gpg --batch --passphrase $PASSWORD -o $BACKUPNAME -d $BACKUPNAME.asc
+    gpg --batch --passphrase $PASSWORD -o backup.dump -d $BACKUP
 
     echo "Succesfully decrypting Backup file"
 
-    #psql --set ON_ERROR_STOP=on $DBNAME < $BACKUPNAME
-    pg_restore $RESTOREOPTIONS -d $DBNAME $BACKUPNAME
+    pg_restore $RESTOREOPTIONS -d $DBNAME backup.dump
     if [ $? -ne 0 ]; then
         echo "Error: Restoring of backup failed, check db connection settings"
         exit 1
     fi
-    echo "Succesfully restoring ${DBNAME} from backup ${BACKUPNAME}"
+    echo "Succesfully restoring ${DBNAME} from backup"
     exit 0
 fi
 echo " invalid command STATE ENV must be set to backup or restore"
