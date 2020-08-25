@@ -6,7 +6,9 @@ PASSWORD=$4
 REMOTEUSER=$5
 REMOTEIP=$6
 STORAGEPATH=$7
-RESTOREOPTIONS=$8
+DATEFORMAT=$8
+RESTOREOPTIONS=$9
+
 
 cd
 touch ~/.ssh/known_hosts
@@ -18,10 +20,10 @@ ssh-keyscan -H $REMOTEIP >> ~/.ssh/known_hosts
 
 # backup postgres db
 if [ $STATE = "backup" ]; then
-    DUMP_FILE_NAME="${BACKUPNAME}`date +%Y-%m-%d-%H-%M`.dump"
+    DUMP_FILE_NAME="${BACKUPNAME}-$(date +$DATEFORMAT).dump"
+    echo "time format: $(date +$DATEFORMAT)"
     echo "Creating dump: $DUMP_FILE_NAME"
-
-    cd
+    
     # dump sql db
     pg_dump -Fc $DBNAME > $DUMP_FILE_NAME
 
@@ -36,7 +38,9 @@ if [ $STATE = "backup" ]; then
     gpg --batch -c --passphrase $PASSWORD --armor --symmetric --cipher-algo AES256 $DUMP_FILE_NAME
 
     echo "Successfully Encrypted dump file: ${DUMP_FILE_NAME}"
+
     # move backup file
+    #ssh $REMOTEUSER@$REMOTEIP mkdir $STORAGEPATH/test-mkdir
     scp $DUMP_FILE_NAME.asc $REMOTEUSER@$REMOTEIP:$STORAGEPATH
 
     if [ $? -ne 0 ]; then
@@ -51,15 +55,23 @@ fi
 # restore postgres db
 if [ $STATE = "restore" ]; then
     echo "Pulling backup ${BACKUPNAME} from server"
+    if [-z "$BACKUPNAME"]; then
+        echo "Pulling backup lastes backup from server"
+      #  LATEST= ssh $REMOTEUSER@$REMOTEIP ls -t -l $STORAGEPATH/ | head -1
 
-    scp $REMOTEUSER@$REMOTEIP:$STORAGEPATH/$BACKUPNAME.asc ./
-    
-    if [ $? -ne 0 ]; then
-        rm $DUMP_FILE_NAME.asc
-        echo "Back up could not be pulled from storage, check scp connection to ${REMOTEUSER}@${$REMOTEIP}"
-        exit 1
+        echo "$LATEST"
+        if [ $? -ne 0 ]; then
+            echo "Back up could not be pulled from storage, check scp connection to ${REMOTEUSER}@${$REMOTEIP}"
+            exit 1
+        fi
+    else
+        echo "Pulling backup ${BACKUPNAME} from server"
+        scp $REMOTEUSER@$REMOTEIP:$STORAGEPATH/$BACKUPNAME.asc ./
+        if [ $? -ne 0 ]; then
+            echo "Back up could not be pulled from storage, check scp connection to ${REMOTEUSER}@${$REMOTEIP}"
+            exit 1
+        fi
     fi
-
     echo "Succesfully retrived Backup file"
 
     gpg --batch --passphrase $PASSWORD -o $BACKUPNAME -d $BACKUPNAME.asc

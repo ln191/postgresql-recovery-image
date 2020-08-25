@@ -41,7 +41,7 @@ spec:
             - name: DBNAME
               value: postgres
             - name: BACKUPNAME
-              value: test-backup2020-08-24-06-53.dump
+              value: ""
             - name: REMOTEUSER
               value: root
             - name: REMOTEIP

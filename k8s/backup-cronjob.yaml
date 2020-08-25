@@ -14,7 +14,7 @@ spec:
                 secretName: backupkey-secret
           containers:
             - name: backup
-              image: backup:0.4
+              image: backup:0.6
               volumeMounts:
                 - name: secret-volume
                   mountPath: /home/backup/keys
@@ -44,6 +44,8 @@ spec:
                   value: postgres
                 - name: BACKUPNAME
                   value: test-backup
+                - name: DATEFORMAT
+                  value: "%Y-%m-%d-%H-%M"
                 - name: REMOTEUSER
                   value: root
                 - name: REMOTEIP
