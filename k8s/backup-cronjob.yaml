@@ -14,7 +14,7 @@ spec:
                 secretName: backupkey-secret
           containers:
             - name: backup
-              image: backup:0.6
+              image: backup:0.7
               volumeMounts:
                 - name: secret-volume
                   mountPath: /home/backup/keys
@@ -42,14 +42,16 @@ spec:
                       key: password
                 - name: DBNAME
                   value: postgres
-                - name: BACKUPNAME
-                  value: test-backup
-                - name: DATEFORMAT
-                  value: "%Y-%m-%d-%H-%M"
                 - name: REMOTEUSER
                   value: root
                 - name: REMOTEIP
                   value: storage-service
                 - name: STORAGEPATH
                   value: /tmp
+                - name: BACKUPNAME
+                  value: test-backup
+                - name: DATEFORMAT
+                  value: "%Y-%m-%d-%H-%M"
+                - name: NAMESPACE
+                  value: space-2
           restartPolicy: OnFailure

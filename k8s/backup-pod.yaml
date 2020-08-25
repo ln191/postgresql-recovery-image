@@ -11,7 +11,7 @@ spec:
         secretName: backupkey-secret
   containers:
     - name: backup
-      image: backup:0.6
+      image: backup:0.7
       volumeMounts:
         - name: secret-volume
           mountPath: /home/backup/keys

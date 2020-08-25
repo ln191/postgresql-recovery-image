@@ -1,6 +1,6 @@
 FROM alpine
 
-LABEL version="0.5" type="alpine-backup-retore"
+LABEL version="0.7" type="alpine-backup-retore"
 
 RUN apk update
 RUN apk upgrade
@@ -17,4 +17,4 @@ RUN addgroup -S backup && adduser -S backup -G backup
 USER backup
 RUN mkdir -p ~/.ssh && mkdir ~/keys
 
-CMD backup.sh $STATE $DBNAME $BACKUPNAME $PASSWORD $REMOTEUSER $REMOTEIP $STORAGEPATH $DATEFORMAT $RESTOREOPTIONS 
+CMD backup.sh

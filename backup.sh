@@ -1,14 +1,4 @@
 #!/bin/sh
-STATE=$1
-DBNAME=$2
-BACKUPNAME=$3
-PASSWORD=$4
-REMOTEUSER=$5
-REMOTEIP=$6
-STORAGEPATH=$7
-DATEFORMAT=$8
-RESTOREOPTIONS=$9
-
 
 cd
 touch ~/.ssh/known_hosts
@@ -18,12 +8,13 @@ cp ~/keys/id_rsa ~/.ssh
 chmod -R 600 ~/.ssh/id_rsa
 ssh-keyscan -H $REMOTEIP >> ~/.ssh/known_hosts
 
-# backup postgres db
-if [ $STATE = "backup" ]; then
+if [ "backup" = $STATE ]; then
+    # backup postgres db
+
     DUMP_FILE_NAME="${BACKUPNAME}-$(date +$DATEFORMAT).dump"
     echo "time format: $(date +$DATEFORMAT)"
     echo "Creating dump: $DUMP_FILE_NAME"
-    
+
     # dump sql db
     pg_dump -Fc $DBNAME > $DUMP_FILE_NAME
 
@@ -31,7 +22,7 @@ if [ $STATE = "backup" ]; then
         echo "Back up not created, check db connection settings"
         exit 1
     fi
-    
+
     echo 'Successfully Backed Up'
 
     # sync encryption
@@ -40,8 +31,9 @@ if [ $STATE = "backup" ]; then
     echo "Successfully Encrypted dump file: ${DUMP_FILE_NAME}"
 
     # move backup file
-    #ssh $REMOTEUSER@$REMOTEIP mkdir $STORAGEPATH/test-mkdir
-    scp $DUMP_FILE_NAME.asc $REMOTEUSER@$REMOTEIP:$STORAGEPATH
+    ssh $REMOTEUSER@$REMOTEIP mkdir $STORAGEPATH/$NAMESPACE
+    ssh $REMOTEUSER@$REMOTEIP mkdir $STORAGEPATH/$NAMESPACE/$BACKUPNAME
+    scp $DUMP_FILE_NAME.asc $REMOTEUSER@$REMOTEIP:$STORAGEPATH/$NAMESPACE/$BACKUPNAME
 
     if [ $? -ne 0 ]; then
         echo "Back up could not be move to storage, check scp connection to ${REMOTEUSER}@${$REMOTEIP}"
@@ -52,12 +44,12 @@ if [ $STATE = "backup" ]; then
     exit 0
 fi
 
-# restore postgres db
-if [ $STATE = "restore" ]; then
+if ["restore" = $STATE]; then
+
     echo "Pulling backup ${BACKUPNAME} from server"
     if [-z "$BACKUPNAME"]; then
         echo "Pulling backup lastes backup from server"
-      #  LATEST= ssh $REMOTEUSER@$REMOTEIP ls -t -l $STORAGEPATH/ | head -1
+        #  LATEST= ssh $REMOTEUSER@$REMOTEIP ls -t -l $STORAGEPATH/ | head -1
 
         echo "$LATEST"
         if [ $? -ne 0 ]; then
@@ -77,7 +69,7 @@ if [ $STATE = "restore" ]; then
     gpg --batch --passphrase $PASSWORD -o $BACKUPNAME -d $BACKUPNAME.asc
 
     echo "Succesfully decrypting Backup file"
-    
+
     #psql --set ON_ERROR_STOP=on $DBNAME < $BACKUPNAME
     pg_restore $RESTOREOPTIONS -d $DBNAME $BACKUPNAME
     if [ $? -ne 0 ]; then
@@ -87,5 +79,5 @@ if [ $STATE = "restore" ]; then
     echo "Succesfully restoring ${DBNAME} from backup ${BACKUPNAME}"
     exit 0
 fi
- echo "State option was not set correctly, see doc"
+echo " invalid command STATE ENV must be set to backup or restore"
 exit 1
