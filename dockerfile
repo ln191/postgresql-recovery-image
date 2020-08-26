@@ -1,6 +1,6 @@
 FROM alpine
 
-LABEL version="0.8" type="alpine-backup-retore"
+LABEL version="1.0" type="alpine-backup-retore"
 
 RUN apk update
 RUN apk upgrade

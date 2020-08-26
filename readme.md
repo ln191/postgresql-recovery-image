@@ -1,5 +1,26 @@
 # Backup and recovery image using dumps
 
+ENV OPTIONS
+
+|ENV        |Describtion                                    |Values             | Requeet |
+| ----      | --------                                      | ------            | -----   |
+| STATE     | Should Image run backup or restore cmd        | backup or restore | Yes     |
+| PGHOST    | The Host of the postgres db                   | service name or ip| Yes     |
+| PGDATABASE| The Specific db name                          |                   | Yes     |
+| PGUSER    | The postgres user to connect to db with       |                   | Yes     |
+| PGPASSWORD| THe password for the postgres user            |                   | Yes     |
+| PASSWORD  | The password to use for gpg symetric encryption | make strong     | Yes     |
+| REMOTEUSER| The User used for ssh to storage server       | do not user root user | Yes   |
+| REMOTEIP  | Ip of remote storage server                   |                   | Yes     |
+| STORAGEPATH | root path where backup will be stored       |                   | Yes     |
+| NAMESPACE | k8s namespace, use to create storage folder structure |                   | Yes     |
+| DBAPP     | app name, use for naming of backup            |                   | Yes     |
+| DATEFORMAT| set the date format used in backup naming     | "%Y-%m-%d-%H-%M"  | Backup: Yes |
+| BACKUPFILE| File name of backup, which will be use to restore | ex: backup.dump.asc | Restore: Yes |
+
+
+
+
 
 
 ## Postgress sql dump

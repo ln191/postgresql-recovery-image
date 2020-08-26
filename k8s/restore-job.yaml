@@ -12,7 +12,7 @@ spec:
                 secretName: backupkey-secret
       containers:
         - name: backup
-          image: backup:0.8
+          image: backup:1.0
           volumeMounts:
             - name: secret-volume
               mountPath: /home/backup/keys
@@ -52,4 +52,6 @@ spec:
               value: space-2
             - name: RESTOREOPTIONS
               value: '-c'
+            - name: BACKUPFILE
+              value: backup.dump.asc
       restartPolicy: Never
