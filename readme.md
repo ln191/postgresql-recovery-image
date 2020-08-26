@@ -2,7 +2,7 @@
 
 ENV OPTIONS
 
-|ENV        |Describtion                                    |Values             | Requeet |
+|ENV        |Describtion                                    |Values             | required |
 | ----      | --------                                      | ------            | -----   |
 | STATE     | Should Image run backup or restore cmd        | backup or restore | Yes     |
 | PGHOST    | The Host of the postgres db                   | service name or ip| Yes     |
