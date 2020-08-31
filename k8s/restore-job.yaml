@@ -52,6 +52,6 @@ spec:
               value: space-2
             - name: RESTOREOPTIONS
               value: '-c'
-            - name: BACKUPFILE
-              value: backup.dump.asc
+            # - name: BACKUPFILE
+            #   value: test-backup-2020-08-31-06-52.dump.asc
       restartPolicy: Never
