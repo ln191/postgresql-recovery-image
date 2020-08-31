@@ -17,7 +17,7 @@ if [ "backup" = $STATE ]; then
     echo "Creating dump: $DUMP_FILE_NAME"
 
     # dump sql db
-    pg_dump -Fc $DBNAME > $DUMP_FILE_NAME
+    pg_dump -Fc $PGDATABASE > $DUMP_FILE_NAME
 
     if [ $? -ne 0 ]; then
         echo "Back up not created, check db connection settings"
@@ -73,12 +73,12 @@ if [ "restore" = $STATE ]; then
 
     echo "Succesfully decrypting Backup file"
 
-    pg_restore $RESTOREOPTIONS -d $DBNAME backup.dump
+    pg_restore $RESTOREOPTIONS -d $PGDATABASE backup.dump
     if [ $? -ne 0 ]; then
         echo "Error: Restoring of backup failed, check db connection settings"
         exit 1
     fi
-    echo "Succesfully restoring ${DBNAME} from backup"
+    echo "Succesfully restoring ${PGDATABASE} from backup"
     exit 0
 fi
 echo " invalid command STATE ENV must be set to backup or restore"
