@@ -42,6 +42,11 @@ if [ "backup" = $STATE ]; then
     fi
 
     echo 'Successfully pushed to backup storage'
+    if [ "true" = $DELETEOLDBACKUPS ]; then
+        echo 'Delete backups older than '$OLDERTHAN' days'
+        res=$(ssh $REMOTEUSER@$REMOTEIP 'find '$STORAGEPATH/$NAMESPACE/$DBAPP' -ctime -'$OLDERTHAN' -delete')
+        
+    fi
     exit 0
 fi
 

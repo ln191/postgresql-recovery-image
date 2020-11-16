@@ -11,7 +11,7 @@ spec:
         secretName: backupkey-secret
   containers:
     - name: backup
-      image: backup:0.7
+      image: backup:2.0
       volumeMounts:
         - name: secret-volume
           mountPath: /home/backup/keys
@@ -47,3 +47,13 @@ spec:
           value: storage-service
         - name: STORAGEPATH
           value: /tmp
+        - name: DATEFORMAT
+          value: "%Y-%m-%d-%H-%M"
+        - name: NAMESPACE
+          value: space-2
+        - name: DBAPP
+          value: test-backup
+        - name: DELETEOLDBACKUPS
+          value: "true"
+        - name: OLDERTHAN
+          value: "2"

@@ -14,7 +14,7 @@ spec:
                 secretName: backupkey-secret
           containers:
             - name: backup
-              image: backup:1.0
+              image: backup:2
               volumeMounts:
                 - name: secret-volume
                   mountPath: /home/backup/keys
@@ -54,4 +54,8 @@ spec:
                   value: space-2
                 - name: DBAPP
                   value: test-backup
+                - name: DELETEOLDBACKUPS
+                  value: "true"
+                - name: OLDERTHAN
+                  value: "2"
           restartPolicy: OnFailure
